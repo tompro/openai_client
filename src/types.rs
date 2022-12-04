@@ -1,31 +1,11 @@
+use crate::{OpenAiError, OpenAiResult};
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::string::ToString;
-use thiserror::Error;
 
 const BASE_URL: &str = "https://api.openai.com";
 const DEFAULT_VERSION: &str = "v1";
 const ENV_TOKEN: &str = "OPENAI_API_KEY";
-
-pub type OpenAiResult<R> = Result<R, OpenAiError>;
-
-#[derive(Error, Debug)]
-pub enum OpenAiError {
-    #[error("missing openAi access token in config and env OPENAI_API_KEY")]
-    MissingTokenError,
-
-    #[error("openAi API returned unexpected response body")]
-    UnexpectedApiResponse,
-
-    #[error("openAi API returned error")]
-    ApiErrorResponse(OpenAiErrorResponse),
-
-    #[error("failed to execute openAi request")]
-    HttpError(#[from] reqwest::Error),
-
-    #[error("failed to parse or encode json")]
-    JsonEncodeError(#[from] serde_json::Error),
-}
 
 pub struct OpenAiConfig {
     base_url: String,
