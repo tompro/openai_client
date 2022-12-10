@@ -5,7 +5,7 @@ pub mod completion;
 #[derive(Serialize, Deserialize, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
 #[serde(untagged)]
-enum StringOrListParam {
+pub enum StringOrListParam {
     StringParam(String),
     ListParam(Vec<String>),
 }
@@ -13,10 +13,8 @@ enum StringOrListParam {
 impl Clone for StringOrListParam {
     fn clone(&self) -> Self {
         match self {
-            StringOrListParam::StringParam(str) =>
-                StringOrListParam::StringParam(str.clone()),
-            StringOrListParam::ListParam(list) =>
-                StringOrListParam::ListParam(list.clone())
+            StringOrListParam::StringParam(str) => StringOrListParam::StringParam(str.clone()),
+            StringOrListParam::ListParam(list) => StringOrListParam::ListParam(list.clone()),
         }
     }
 }
@@ -38,7 +36,6 @@ impl From<&Vec<&str>> for StringOrListParam {
         StringOrListParam::ListParam(value.iter().map(|s| s.to_string()).collect())
     }
 }
-
 
 #[cfg(test)]
 mod test {

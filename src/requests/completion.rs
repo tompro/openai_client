@@ -1,12 +1,11 @@
+use crate::client::OpenAiClient;
 use crate::requests::StringOrListParam;
-use crate::requests::StringOrListParam::{ListParam, StringParam};
+use crate::OpenAiResult;
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::string::ToString;
-use crate::client::OpenAiClient;
-use crate::OpenAiResult;
 
-pub const COMPLETION_PATH: String = "completions".to_string();
+pub const COMPLETION_PATH: &str = "completions";
 
 #[derive(Serialize, Deserialize, Builder, Debug, Default)]
 #[builder(setter(strip_option, into))]
@@ -17,32 +16,33 @@ pub struct CompletionRequest {
     pub prompt: Option<StringOrListParam>,
     #[builder(default)]
     pub suffix: Option<String>,
-    #[builder(default = "16")]
-    pub max_tokens: i64,
-    #[builder(default = "1")]
-    pub temperature: i64,
-    #[builder(default = "1")]
-    pub top_p: i64,
-    #[builder(default = "1")]
-    pub n: i64,
-    #[builder(default = "false")]
-    pub stream: bool,
+    #[builder(default)]
+    pub max_tokens: Option<i64>,
+    #[builder(default)]
+    pub temperature: Option<i64>,
+    #[builder(default)]
+    pub top_p: Option<i64>,
+    #[builder(default)]
+    pub n: Option<i64>,
+    #[builder(default)]
+    pub stream: Option<bool>,
     #[builder(default)]
     pub logprobs: Option<i64>,
-    #[builder(default = "false")]
-    pub echo: bool,
+    #[builder(default)]
+    pub echo: Option<bool>,
     #[builder(default)]
     pub stop: Option<StringOrListParam>,
-    #[builder(default = "0")]
-    pub presence_penalty: i64,
-    #[builder(default = "1")]
-    pub best_of: i64,
+    #[builder(default)]
+    pub presence_penalty: Option<i64>,
+    #[builder(default)]
+    pub frequency_penalty: Option<i64>,
+    #[builder(default)]
+    pub best_of: Option<i64>,
     #[builder(default)]
     pub logit_bias: Option<HashMap<String, i64>>,
     #[builder(default)]
     pub user: Option<String>,
 }
-
 
 #[derive(Serialize, Deserialize)]
 struct Usage {
@@ -55,7 +55,7 @@ struct Usage {
 struct Choices {
     pub text: String,
     pub index: i64,
-    pub logprobs: Option<_>,
+    pub logprobs: Option<i64>,
     pub finish_reason: String,
 }
 
@@ -69,26 +69,33 @@ struct CompletionResponse {
     pub usage: Usage,
 }
 
+#[async_trait]
 trait CompletionsRequest {
-    async fn get_completions(&self, request: CompletionRequest) -> OpenAiResult<CompletionResponse>;
+    async fn get_completions(&self, request: CompletionRequest)
+        -> OpenAiResult<CompletionResponse>;
 }
 
+#[async_trait]
 impl CompletionsRequest for OpenAiClient {
-    async fn get_completions(&self, request: CompletionRequest) -> OpenAiResult<CompletionResponse> {
-        self.post_request(&COMPLETION_PATH, request)
+    async fn get_completions(
+        &self,
+        request: CompletionRequest,
+    ) -> OpenAiResult<CompletionResponse> {
+        self.post_request(&COMPLETION_PATH, request).await
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use StringOrListParam::*;
 
     #[test]
     fn builder_must_fail_on_empty_model() {
         let res = CompletionRequestBuilder::default().build();
         match res {
             Ok(_) => assert!(false, "expected required param error"),
-            Err(_) => assert!(true)
+            Err(_) => assert!(true),
         }
     }
 
@@ -160,26 +167,30 @@ mod test {
             .suffix("suffix")
             .best_of(true)
             .echo(true)
-            .build().unwrap();
+            .stream(true)
+            .build()
+            .unwrap();
 
-        assert_eq!(req, CompletionRequest {
-            model: "model".to_string(),
-            prompt: Some(StringParam("prompt".to_string())),
-            suffix: Some("suffix".to_string()),
-            max_tokens: 16,
-            temperature: 1,
-            top_p: 1,
-            n: 100,
-            stream: false,
-            logprobs: None,
-            echo: true,
-            stop: None,
-            presence_penalty: 0,
-            best_of: 1,
-            logit_bias: None,
-            user: None,
-        })
+        assert_eq!(
+            req,
+            CompletionRequest {
+                model: "model".to_string(),
+                prompt: Some(StringParam("prompt".to_string())),
+                suffix: Some("suffix".to_string()),
+                max_tokens: None,
+                temperature: None,
+                top_p: None,
+                n: Some(100),
+                stream: Some(true),
+                logprobs: None,
+                echo: Some(true),
+                stop: None,
+                presence_penalty: None,
+                frequency_penalty: None,
+                best_of: Some(1),
+                logit_bias: None,
+                user: None,
+            }
+        )
     }
-
 }
-

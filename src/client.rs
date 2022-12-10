@@ -36,18 +36,19 @@ impl OpenAiClient {
         Ok(res)
     }
 
-    pub async fn post_request<R,T>(&self, endpoint: &str, body: R) -> OpenAiResult<T>
-        where
-            T: DeserializeOwned,
-            R: Serialize,
+    pub async fn post_request<R, T>(&self, endpoint: &str, body: R) -> OpenAiResult<T>
+    where
+        T: DeserializeOwned,
+        R: Serialize,
     {
         let res = self
             .client
             .post(self.config.endpoint_url(endpoint))
-            .header("Authorization",
-                    format!("Bearer {}", self.conf.get_access_token()?),
+            .header(
+                "Authorization",
+                format!("Bearer {}", self.config.get_access_token()?),
             )
-            .json(body)
+            .json(&body)
             .send()
             .await?
             .json()
@@ -77,5 +78,4 @@ impl OpenAiClient {
     pub async fn get_model(&self, model: &str) -> OpenAiResult<OpenAiModel> {
         self.get_request(&format!("models/{}", model)).await
     }
-
 }
