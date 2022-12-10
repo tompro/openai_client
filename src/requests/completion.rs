@@ -1,8 +1,8 @@
-use crate::client::OpenAiClient;
 use crate::requests::StringOrListParam;
 use crate::OpenAiResult;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 
 pub const COMPLETION_PATH: &str = "completions";
@@ -13,54 +13,69 @@ pub const COMPLETION_PATH: &str = "completions";
 pub struct CompletionRequest {
     pub model: String,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt: Option<StringOrListParam>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub suffix: Option<String>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub logprobs: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub echo: Option<bool>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub stop: Option<StringOrListParam>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub best_of: Option<i64>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub logit_bias: Option<HashMap<String, i64>>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Usage {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Usage {
     pub prompt_tokens: i64,
     pub completion_tokens: i64,
     pub total_tokens: i64,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Choices {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Choices {
     pub text: String,
     pub index: i64,
     pub logprobs: Option<i64>,
     pub finish_reason: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct CompletionResponse {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CompletionResponse {
     pub id: String,
     pub object: String,
     pub created: i64,
@@ -70,19 +85,10 @@ struct CompletionResponse {
 }
 
 #[async_trait]
-trait CompletionsRequest {
+pub trait CompletionsRequest {
     async fn get_completions(&self, request: CompletionRequest)
         -> OpenAiResult<CompletionResponse>;
-}
-
-#[async_trait]
-impl CompletionsRequest for OpenAiClient {
-    async fn get_completions(
-        &self,
-        request: CompletionRequest,
-    ) -> OpenAiResult<CompletionResponse> {
-        self.post_request(&COMPLETION_PATH, request).await
-    }
+    async fn get_completions_json(&self, request: CompletionRequest) -> OpenAiResult<Value>;
 }
 
 #[cfg(test)]

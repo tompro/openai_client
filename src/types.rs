@@ -67,11 +67,11 @@ impl Default for OpenAiConfig {
     }
 }
 
-#[derive(Deserialize)]
-pub struct OpenAiResponse<T> {
-    pub data: Option<T>,
-    pub object: Option<String>,
-    pub error: Option<OpenAiErrorResponse>,
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum OpenAiResponse<T> {
+    Success(T),
+    Failure(OpenAiErrorResponse),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -108,6 +108,12 @@ pub struct OpenAiModel {
     pub parent: Option<String>,
     pub permission: Vec<OpenAiModelPermission>,
     pub root: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OpenAiModelResponse {
+    pub data: Vec<OpenAiModel>,
+    pub object: Option<String>,
 }
 
 #[cfg(test)]

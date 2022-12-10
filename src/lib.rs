@@ -36,7 +36,8 @@ pub enum OpenAiError {
 // mod tests {
 //     use crate::client::OpenAiClient;
 //     use crate::test_helpers::get_test_config;
-//     use crate::types::OpenAiError::ApiErrorResponse;
+//     use crate::OpenAiError::*;
+//     use crate::requests::completion::*;
 //
 //     #[tokio::test]
 //     async fn test_get_models() {
@@ -44,7 +45,7 @@ pub enum OpenAiError {
 //         let client = OpenAiClient::new(get_test_config());
 //         match client.get_models().await {
 //             Ok(models) => {
-//                 for model in models {
+//                 for model in models.data {
 //                     println!("{:?}", model)
 //                 }
 //             },
@@ -71,8 +72,31 @@ pub enum OpenAiError {
 //
 //         }
 //     }
+//
+//     #[tokio::test]
+//     async fn test_completion() {
+//         let input = "So tired I could";
+//
+//         let client = OpenAiClient::new(get_test_config());
+//         let res = client.get_completions_json(
+//             CompletionRequestBuilder::default()
+//                 .model("text-davinci-003")
+//                 .prompt(input)
+//                 .build().unwrap()
+//         ).await;
+//
+//         match res {
+//             Ok(resp) => {
+//                 println!("Completion result {}{}", input, resp)
+//             }
+//             Err(e) => {
+//                 println!("Failed to generate completion {:?}", e)
+//             }
+//         }
+//
+//     }
 // }
-
+//
 // #[cfg(test)]
 // mod test_helpers {
 //
