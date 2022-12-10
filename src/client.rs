@@ -1,6 +1,8 @@
 use crate::requests::completion::*;
+use crate::requests::edits::{EditRequest, EditsRequest, EDIT_PATH};
+use crate::requests::TextResult;
 use crate::types::{OpenAiConfig, OpenAiModel, OpenAiModelResponse, OpenAiResponse};
-use crate::OpenAiError::ApiErrorResponse;
+use crate::OpenAiError::{ApiErrorResponse, UnexpectedJsonResponse};
 use crate::OpenAiResult;
 use async_trait::async_trait;
 use reqwest::Client;
@@ -61,7 +63,8 @@ impl OpenAiClient {
     fn unwrap_response<T>(&self, response: OpenAiResponse<T>) -> OpenAiResult<T> {
         match response {
             OpenAiResponse::Success(res) => Ok(res),
-            OpenAiResponse::Failure(err) => Err(ApiErrorResponse(err)),
+            OpenAiResponse::Error(err) => Err(ApiErrorResponse(err.error)),
+            OpenAiResponse::Other(f) => Err(UnexpectedJsonResponse(f)),
         }
     }
 
@@ -78,10 +81,14 @@ impl OpenAiClient {
 
 #[async_trait]
 impl CompletionsRequest for OpenAiClient {
-    async fn get_completions(
-        &self,
-        request: CompletionRequest,
-    ) -> OpenAiResult<CompletionResponse> {
+    async fn create_completion(&self, request: CompletionRequest) -> OpenAiResult<TextResult> {
         self.unwrap_response(self.post_request(&COMPLETION_PATH, request).await?)
+    }
+}
+
+#[async_trait]
+impl EditsRequest for OpenAiClient {
+    async fn create_edit(&self, request: EditRequest) -> OpenAiResult<TextResult> {
+        self.unwrap_response(self.post_request(EDIT_PATH, request).await?)
     }
 }

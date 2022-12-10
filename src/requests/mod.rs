@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 pub mod completion;
+pub mod edits;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
@@ -35,6 +36,32 @@ impl From<&Vec<&str>> for StringOrListParam {
     fn from(value: &Vec<&str>) -> Self {
         StringOrListParam::ListParam(value.iter().map(|s| s.to_string()).collect())
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Usage {
+    pub prompt_tokens: i64,
+    pub completion_tokens: Option<i64>,
+    pub total_tokens: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TextResult {
+    pub id: Option<String>,
+    pub object: String,
+    pub created: i64,
+    pub model: Option<String>,
+    pub choices: Vec<TextChoice>,
+    pub usage: Usage,
+}
+
+/// A choice result for text based operations
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TextChoice {
+    pub text: String,
+    pub index: i64,
+    pub logprobs: Option<i64>,
+    pub finish_reason: Option<String>,
 }
 
 #[cfg(test)]

@@ -1,5 +1,6 @@
 use crate::{OpenAiError, OpenAiResult};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::env;
 use std::string::ToString;
 
@@ -71,16 +72,22 @@ impl Default for OpenAiConfig {
 #[serde(untagged)]
 pub enum OpenAiResponse<T> {
     Success(T),
-    Failure(OpenAiErrorResponse),
+    Error(OpenAiErrorResponse),
+    Other(Value),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OpenAiErrorResponse {
+    pub error: OpenAiErrorDetails,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct OpenAiErrorResponse {
-    pub code: String,
+pub struct OpenAiErrorDetails {
+    pub code: Option<String>,
     pub message: String,
     pub param: Option<String>,
     #[serde(rename = "type")]
-    pub r#type: String,
+    pub r#type: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

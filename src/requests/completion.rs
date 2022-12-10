@@ -1,4 +1,4 @@
-use crate::requests::StringOrListParam;
+use crate::requests::{StringOrListParam, TextResult};
 use crate::OpenAiResult;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -58,35 +58,9 @@ pub struct CompletionRequest {
     pub user: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Usage {
-    pub prompt_tokens: i64,
-    pub completion_tokens: i64,
-    pub total_tokens: i64,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Choices {
-    pub text: String,
-    pub index: i64,
-    pub logprobs: Option<i64>,
-    pub finish_reason: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct CompletionResponse {
-    pub id: String,
-    pub object: String,
-    pub created: i64,
-    pub model: String,
-    pub choices: Vec<Choices>,
-    pub usage: Usage,
-}
-
 #[async_trait]
 pub trait CompletionsRequest {
-    async fn get_completions(&self, request: CompletionRequest)
-        -> OpenAiResult<CompletionResponse>;
+    async fn create_completion(&self, request: CompletionRequest) -> OpenAiResult<TextResult>;
 }
 
 #[cfg(test)]
