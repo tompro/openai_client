@@ -6,7 +6,6 @@ use async_trait::async_trait;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use serde_json::Value;
 
 pub struct OpenAiClient {
     config: OpenAiConfig,
@@ -84,9 +83,5 @@ impl CompletionsRequest for OpenAiClient {
         request: CompletionRequest,
     ) -> OpenAiResult<CompletionResponse> {
         self.unwrap_response(self.post_request(&COMPLETION_PATH, request).await?)
-    }
-
-    async fn get_completions_json(&self, request: CompletionRequest) -> OpenAiResult<Value> {
-        self.post_request(&COMPLETION_PATH, request).await
     }
 }

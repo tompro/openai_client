@@ -2,7 +2,6 @@ use crate::requests::StringOrListParam;
 use crate::OpenAiResult;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::collections::HashMap;
 
 pub const COMPLETION_PATH: &str = "completions";
@@ -88,7 +87,6 @@ pub struct CompletionResponse {
 pub trait CompletionsRequest {
     async fn get_completions(&self, request: CompletionRequest)
         -> OpenAiResult<CompletionResponse>;
-    async fn get_completions_json(&self, request: CompletionRequest) -> OpenAiResult<Value>;
 }
 
 #[cfg(test)]
