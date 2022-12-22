@@ -14,3 +14,4 @@ async-trait = "0.1.59"
 
 [dev-dependencies]
 dotenv = "0.15.0"
+wiremock = "0.5.15"

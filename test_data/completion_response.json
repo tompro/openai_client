@@ -1,0 +1,19 @@
+{
+  "id": "cmpl-6QGSaBmcS8vJkOderptRPPOEEzRq2",
+  "object": "text_completion",
+  "created": 1671717820,
+  "model": "text-davinci-003",
+  "choices": [
+    {
+      "text": " sleep for a week\n\nIf you are feeling exhausted it is best to try",
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 6,
+    "completion_tokens": 16,
+    "total_tokens": 22
+  }
+}
