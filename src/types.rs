@@ -125,7 +125,7 @@ impl OpenAiConfig {
     }
 
     pub fn get_access_token(&self) -> OpenAiResult<String> {
-        if self.access_token == "" {
+        if self.access_token.is_empty() {
             match env::var(ENV_TOKEN) {
                 Ok(token) => Ok(token),
                 Err(_) => Err(OpenAiError::MissingTokenError),
