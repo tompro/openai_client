@@ -43,6 +43,10 @@ pub struct OpenAiConfig {
     model_path: String,
     completion_path: String,
     edit_path: String,
+    image_path: String,
+    image_create: String,
+    image_edits: String,
+    image_variations: String,
 }
 
 impl OpenAiConfig {
@@ -58,6 +62,10 @@ impl OpenAiConfig {
             model_path: "models".to_string(),
             completion_path: "completions".to_string(),
             edit_path: "edits".to_string(),
+            image_path: "images".to_string(),
+            image_create: "generations".to_string(),
+            image_edits: "edits".to_string(),
+            image_variations: "variations".to_string(),
         }
     }
 
@@ -88,12 +96,28 @@ impl OpenAiConfig {
         self.add_path_segment(&self.get_models_path(), model)
     }
 
+    pub fn get_create_image_path(&self) -> String {
+        self.image_path(&self.image_create)
+    }
+
+    pub fn get_edit_image_path(&self) -> String {
+        self.image_path(&self.image_edits)
+    }
+
+    pub fn get_image_variations_path(&self) -> String {
+        self.image_path(&self.image_variations)
+    }
+
     pub fn get_edit_path(&self) -> String {
         self.add_path_segment(&self.version, &self.edit_path)
     }
 
     pub fn get_completion_path(&self) -> String {
         self.add_path_segment(&self.version, &self.completion_path)
+    }
+
+    fn image_path(&self, segment: &str) -> String {
+        format!("{}/{}/{}", self.version, self.image_path, segment)
     }
 
     fn add_path_segment(&self, path: &str, segment: &str) -> String {
@@ -234,6 +258,20 @@ pub struct TextChoice {
     pub finish_reason: Option<String>,
 }
 
+/// A single image item
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ImageItem {
+    url: Option<String>,
+    b64_json: Option<String>,
+}
+
+/// A result returned by image operations
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ImageResult {
+    pub created: u64,
+    pub data: Vec<ImageItem>,
+}
+
 #[derive(Serialize, Deserialize, Builder, Debug, Default)]
 #[builder(setter(strip_option, into))]
 #[cfg_attr(test, derive(PartialEq))]
@@ -306,6 +344,46 @@ pub struct EditRequest {
     pub top_p: Option<i64>,
 }
 
+#[derive(Serialize, Deserialize, Builder, Debug, Default)]
+#[builder(setter(strip_option, into))]
+#[cfg_attr(test, derive(PartialEq))]
+pub struct CreateImageRequest {
+    pub prompt: String,
+    #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<i64>,
+    #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub size: Option<String>,
+    #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub response_format: Option<String>,
+    #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+}
+
+#[cfg(test)]
+mod image {
+    use crate::types::{CreateImageRequest, CreateImageRequestBuilder};
+
+    #[test]
+    fn should_build_an_image_create_request() {
+        let request = CreateImageRequestBuilder::default()
+            .prompt("A cute baby sea otter")
+            .size("256x256")
+            .build()
+            .unwrap();
+        let expected = CreateImageRequest {
+            prompt: "A cute baby sea otter".to_string(),
+            n: None,
+            size: Some("256x256".to_string()),
+            response_format: None,
+            user: None,
+        };
+        assert_eq!(request, expected);
+    }
+}
 #[cfg(test)]
 mod config {
     use super::StringOrListParam::*;

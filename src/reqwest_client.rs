@@ -1,8 +1,8 @@
 use crate::types::TextResult;
 use crate::OpenAiError::{ApiErrorResponse, UnexpectedJsonResponse};
 use crate::{
-    CompletionRequest, EditRequest, OpenAiClient, OpenAiConfig, OpenAiModel, OpenAiModelResponse,
-    OpenAiResponse, OpenAiResult,
+    CompletionRequest, CreateImageRequest, EditRequest, ImageResult, OpenAiClient, OpenAiConfig,
+    OpenAiModel, OpenAiModelResponse, OpenAiResponse, OpenAiResult,
 };
 use async_trait::async_trait;
 use reqwest::Client;
@@ -94,11 +94,19 @@ impl OpenAiClient for OpenAiReqwestClient {
         let resp = self.get_request(&self.config.get_model_path(model)).await?;
         self.unwrap_response(resp)
     }
+
+    async fn create_image(&self, request: CreateImageRequest) -> OpenAiResult<ImageResult> {
+        let response = self
+            .post_request(&self.config.get_create_image_path(), request)
+            .await?;
+        self.unwrap_response(response)
+    }
 }
 
 #[cfg(test)]
 mod request_client {
-    use crate::request_client::test_helpers::{create_test_server_config, json_response};
+    use crate::reqwest_client::test_helpers::{create_test_server_config, json_response};
+    use crate::types::CreateImageRequestBuilder;
     use crate::{
         CompletionRequestBuilder, EditRequestBuilder, OpenAiClient, OpenAiError,
         OpenAiReqwestClient,
@@ -209,6 +217,38 @@ mod request_client {
 
         let client = OpenAiReqwestClient::new(config);
         match client.create_completion(request).await {
+            Ok(_) => assert!(true),
+            Err(e) => {
+                println!("ERR: {:?}", e);
+                assert!(false, "expected success response")
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn should_return_generate_image_response() {
+        let (config, server) = create_test_server_config().await;
+
+        let request = CreateImageRequestBuilder::default()
+            .prompt("A cute baby sea otter")
+            .size("1024x1024")
+            .n(2)
+            .build()
+            .unwrap();
+
+        let json = serde_json::to_value(&request).expect("request serialized");
+
+        Mock::given(method("POST"))
+            .and(path(config.get_create_image_path()))
+            .and(body_json(json))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(json_response("create_image_response")),
+            )
+            .mount(&server)
+            .await;
+
+        let client = OpenAiReqwestClient::new(config);
+        match client.create_image(request).await {
             Ok(_) => assert!(true),
             Err(e) => {
                 println!("ERR: {:?}", e);
