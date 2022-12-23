@@ -4,7 +4,7 @@ extern crate core;
 extern crate derive_builder;
 
 mod client;
-mod reqwest_client;
+mod client_api;
 mod types;
 
 pub use types::{
@@ -14,4 +14,4 @@ pub use types::{
 };
 
 pub use client::OpenAiClient;
-pub use reqwest_client::OpenAiReqwestClient;
+pub use client_api::ClientApi;
