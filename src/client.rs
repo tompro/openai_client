@@ -22,7 +22,7 @@ impl OpenAiClient {
         }
     }
 
-    pub async fn get_request<T>(&self, endpoint: &str) -> OpenAiResult<T>
+    async fn get_request<T>(&self, endpoint: &str) -> OpenAiResult<T>
     where
         T: DeserializeOwned,
     {
@@ -40,7 +40,7 @@ impl OpenAiClient {
         Ok(res)
     }
 
-    pub async fn post_request<R, T>(&self, endpoint: &str, body: R) -> OpenAiResult<T>
+    async fn post_request<R, T>(&self, endpoint: &str, body: R) -> OpenAiResult<T>
     where
         T: DeserializeOwned,
         R: Serialize,
@@ -105,13 +105,12 @@ impl ClientApi for OpenAiClient {
 
 #[cfg(test)]
 mod request_client {
-    use crate::client::test_helpers::{create_test_server_config, json_response};
-    use crate::types::CreateImageRequestBuilder;
-    use crate::{
-        ClientApi, CompletionRequestBuilder, EditRequestBuilder, OpenAiClient, OpenAiError,
-    };
+    use crate::*;
+    use serde_json::Value;
+    use std::fs::File;
+    use std::io::Read;
     use wiremock::matchers::{body_json, method, path};
-    use wiremock::{Mock, ResponseTemplate};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[tokio::test]
     async fn should_give_http_error_for_invalid_response() {
@@ -255,15 +254,6 @@ mod request_client {
             }
         }
     }
-}
-
-#[cfg(test)]
-mod test_helpers {
-    use crate::types::OpenAiConfig;
-    use serde_json::Value;
-    use std::fs::File;
-    use std::io::Read;
-    use wiremock::MockServer;
 
     pub async fn create_test_server_config() -> (OpenAiConfig, MockServer) {
         let server = MockServer::start().await;

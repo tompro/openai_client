@@ -8,9 +8,10 @@ mod client_api;
 mod types;
 
 pub use types::{
-    CompletionRequest, CompletionRequestBuilder, CreateImageRequest, EditRequest,
-    EditRequestBuilder, ImageItem, ImageResult, OpenAiConfig, OpenAiError, OpenAiErrorResponse,
-    OpenAiModel, OpenAiModelPermission, OpenAiModelResponse, OpenAiResponse, OpenAiResult,
+    CompletionRequest, CompletionRequestBuilder, CreateImageRequest, CreateImageRequestBuilder,
+    EditRequest, EditRequestBuilder, ImageItem, ImageResult, OpenAiConfig, OpenAiError,
+    OpenAiErrorResponse, OpenAiModel, OpenAiModelPermission, OpenAiModelResponse, OpenAiResponse,
+    OpenAiResult,
 };
 
 pub use client::OpenAiClient;
