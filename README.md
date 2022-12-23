@@ -4,7 +4,8 @@
 ![Continuous integration](https://github.com/tompro/openai_client/workflows/Continuous%20integration/badge.svg)
 
 `openai_client` provides configuration, models an a http client for working with 
-the API of [OpenAi](https://beta.openai.com/docs/api-reference/) in Rust.
+the API of [OpenAi](https://beta.openai.com/docs/api-reference/) in Rust. This is 
+a community maintained library.
 
 ## Cargo
 
