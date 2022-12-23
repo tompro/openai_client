@@ -185,7 +185,7 @@ mod request_client {
 
         let client = OpenAiClient::new(config);
         match client.create_edit(request).await {
-            Ok(v) => assert!(true),
+            Ok(_) => assert!(true),
             Err(e) => {
                 println!("ERR: {:?}", e);
                 assert!(false, "expected success response")

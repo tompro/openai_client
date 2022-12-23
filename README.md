@@ -3,23 +3,8 @@
 [![crates.io](https://img.shields.io/badge/crates.io-v0.1.0-orange)](https://crates.io/crates/openai_client)
 ![Continuous integration](https://github.com/tompro/openai_client/workflows/Continuous%20integration/badge.svg)
 
-openai_client provides configuration, models an a http client for working with 
-the API of [OpenAi](https://beta.openai.com/docs/api-reference/).
-
- ### Features
-- [x] Models
-- [x] Completions
-- [x] Edits
-- [ ] Images
-  - [x] Create 
-  - [ ] Edit
-  - [ ] Variations 
-- [ ] Embeddings
-- [ ] Files
-- [ ] Fine Tunes
-- [ ] Moderations
-- [ ] Engines
-- [ ] Parameter details
+`openai_client` provides configuration, models an a http client for working with 
+the API of [OpenAi](https://beta.openai.com/docs/api-reference/) in Rust.
 
 ## Cargo
 
@@ -54,3 +39,18 @@ let request = EditRequestBuilder::default()
 // Send request
 let result = client.create_edit(request).await?;
 ```
+
+### Features
+- [x] Models
+- [x] Completions
+- [x] Edits
+- [ ] Images
+    - [x] Create
+    - [ ] Edit
+    - [ ] Variations
+- [ ] Embeddings
+- [ ] Files
+- [ ] Fine Tunes
+- [ ] Moderations
+- [ ] Engines
+- [ ] Parameter details

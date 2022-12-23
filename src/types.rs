@@ -49,6 +49,7 @@ pub struct OpenAiConfig {
     image_variations: String,
 }
 
+/// Basic configuration params for running requests against OpenAi Api.
 impl OpenAiConfig {
     pub fn new(access_token: &str) -> Self {
         OpenAiConfig::create(BASE_URL, DEFAULT_VERSION, access_token)
@@ -69,49 +70,61 @@ impl OpenAiConfig {
         }
     }
 
+    /// Set the base url for the Api.
     pub fn base_url(mut self, url: &str) -> Self {
         self.base_url = url.to_string();
         self
     }
 
+    /// Set the Api version to use.
     pub fn version(mut self, version: &str) -> Self {
         self.version = version.to_string();
         self
     }
 
+    /// Set the access_token for billing programmatically. If not
+    /// set will try to resolve from env var.
     pub fn access_token(mut self, access_token: &str) -> Self {
         self.access_token = access_token.to_string();
         self
     }
 
+    /// Returns the Api url for given path.
     pub fn api_url(&self, path: &str) -> String {
         format!("{}/{}", self.base_url, path)
     }
 
+    /// Returns the models path.
     pub fn get_models_path(&self) -> String {
         self.add_path_segment(&self.version, &self.model_path)
     }
 
+    /// Returns the path for a specific model
     pub fn get_model_path(&self, model: &str) -> String {
         self.add_path_segment(&self.get_models_path(), model)
     }
 
+    /// Returns the create image path
     pub fn get_create_image_path(&self) -> String {
         self.image_path(&self.image_create)
     }
 
+    /// Returns the edit image path
     pub fn get_edit_image_path(&self) -> String {
         self.image_path(&self.image_edits)
     }
 
+    /// Returns the image variations path
     pub fn get_image_variations_path(&self) -> String {
         self.image_path(&self.image_variations)
     }
 
+    /// Returns the text edit path
     pub fn get_edit_path(&self) -> String {
         self.add_path_segment(&self.version, &self.edit_path)
     }
 
+    /// Returns the text completions path
     pub fn get_completion_path(&self) -> String {
         self.add_path_segment(&self.version, &self.completion_path)
     }
@@ -124,6 +137,7 @@ impl OpenAiConfig {
         format!("{}/{}", path, segment)
     }
 
+    /// Returns the OpenAi Api access token
     pub fn get_access_token(&self) -> OpenAiResult<String> {
         if self.access_token.is_empty() {
             match env::var(ENV_TOKEN) {
@@ -142,6 +156,7 @@ impl Default for OpenAiConfig {
     }
 }
 
+/// A wrapper around the OpenAi response payload.
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
 pub enum OpenAiResponse<T> {
@@ -150,11 +165,13 @@ pub enum OpenAiResponse<T> {
     Other(Value),
 }
 
+/// The payload of an OpenAi error response.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpenAiErrorResponse {
     pub error: OpenAiErrorDetails,
 }
 
+/// The error details provided by OpenAi error responses.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpenAiErrorDetails {
     pub code: Option<String>,
@@ -164,6 +181,7 @@ pub struct OpenAiErrorDetails {
     pub r#type: Option<String>,
 }
 
+/// Model permissions response.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpenAiModelPermission {
     pub allow_create_engine: bool,
@@ -180,6 +198,7 @@ pub struct OpenAiModelPermission {
     pub organization: String,
 }
 
+/// Model properties response
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpenAiModel {
     pub created: i64,
@@ -191,12 +210,15 @@ pub struct OpenAiModel {
     pub root: String,
 }
 
+/// Models list response.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpenAiModelResponse {
     pub data: Vec<OpenAiModel>,
     pub object: Option<String>,
 }
 
+/// Multi type response that can either be a string or
+/// a list of strings.
 #[derive(Serialize, Deserialize, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
 #[serde(untagged)]
@@ -232,6 +254,7 @@ impl From<&Vec<&str>> for StringOrListParam {
     }
 }
 
+/// The token usage as returned in some responses.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Usage {
     pub prompt_tokens: i64,
@@ -239,6 +262,7 @@ pub struct Usage {
     pub total_tokens: i64,
 }
 
+/// Container for a text base result.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TextResult {
     pub id: Option<String>,
@@ -261,8 +285,8 @@ pub struct TextChoice {
 /// A single image item
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ImageItem {
-    url: Option<String>,
-    b64_json: Option<String>,
+    pub url: Option<String>,
+    pub b64_json: Option<String>,
 }
 
 /// A result returned by image operations
@@ -272,6 +296,7 @@ pub struct ImageResult {
     pub data: Vec<ImageItem>,
 }
 
+/// Json data required for doing text completion requests.
 #[derive(Serialize, Deserialize, Builder, Debug, Default)]
 #[builder(setter(strip_option, into))]
 #[cfg_attr(test, derive(PartialEq))]
@@ -324,6 +349,7 @@ pub struct CompletionRequest {
     pub user: Option<String>,
 }
 
+/// Json data required for doing text edit requests.
 #[derive(Serialize, Deserialize, Builder, Debug, Default)]
 #[builder(setter(strip_option, into))]
 #[cfg_attr(test, derive(PartialEq))]
@@ -344,6 +370,7 @@ pub struct EditRequest {
     pub top_p: Option<i64>,
 }
 
+/// Json data required for doing image generation requests.
 #[derive(Serialize, Deserialize, Builder, Debug, Default)]
 #[builder(setter(strip_option, into))]
 #[cfg_attr(test, derive(PartialEq))]
