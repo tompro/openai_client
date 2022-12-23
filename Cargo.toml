@@ -3,7 +3,7 @@ name = "openai_client"
 version = "0.1.0"
 edition = "2021"
 license-file = "LICENSE.md"
-keywords = [" open-ai", "ai", "api"]
+keywords = [" openai", "ai", "api"]
 
 [dependencies]
 thiserror = "1.0.37"
