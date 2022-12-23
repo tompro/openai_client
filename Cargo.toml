@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license-file = "LICENSE.md"
 keywords = ["OpenAi", "AI", "API", "client"]
+description = "Client library for using the OpenAi Api"
 
 [dependencies]
 thiserror = "1.0.37"
