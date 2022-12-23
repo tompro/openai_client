@@ -9,6 +9,7 @@ use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+#[derive(Default)]
 pub struct OpenAiClient {
     config: OpenAiConfig,
     client: Client,
@@ -184,7 +185,7 @@ mod request_client {
 
         let client = OpenAiClient::new(config);
         match client.create_edit(request).await {
-            Ok(_) => assert!(true),
+            Ok(v) => assert!(true),
             Err(e) => {
                 println!("ERR: {:?}", e);
                 assert!(false, "expected success response")
